@@ -1,0 +1,12 @@
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.cloud.stream.config.BindingServiceConfiguration
+      - org.springframework.cloud.stream.function.FunctionConfiguration
+  cloud:
+    bus:
+      enabled: false
+
+#logging:
+#  level:
+#    root: DEBUG
