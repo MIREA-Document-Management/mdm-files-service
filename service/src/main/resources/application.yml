@@ -30,3 +30,12 @@ spring:
     r2dbc:
       repositories:
         enabled: true
+
+mdm:
+  s3:
+    access-key: minioadmin
+    secret-key: minioadmin
+    region: us-east-1
+    endpoint: http://localhost:9000
+    bucket-name: first-bucket
+    prefix: test-prefix

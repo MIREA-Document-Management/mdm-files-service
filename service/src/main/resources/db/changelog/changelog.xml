@@ -16,5 +16,27 @@
         ]]></sql>
     </changeSet>
 
+    <changeSet id="create-mdm-files-table" author="Melekhin Mikhail">
+        <comment>Создание таблицы mdm_files</comment>
+        <sql><![CDATA[
+            CREATE TABLE IF NOT EXISTS mdm_files
+            (
+                id                      UUID NOT NULL DEFAULT public.uuid_generate_v4() PRIMARY KEY,
+                file_name               TEXT NOT NULL,
+                mime_type               TEXT NOT NULL,
+                content_ref             TEXT NOT NULL,
+                file_size               BIGSERIAL NOT NULL,
+                actual_file_size        BIGSERIAL NOT NULL,
+                compressed              BOOLEAN NOT NULL,
+                created_by              TEXT NOT NULL,
+                creation_date           timestamp NOT NULL,
+                modified_by             TEXT NOT NULL,
+                modification_date       timestamp NOT NULL,
+                data                    JSONB
+            );
+        ]]></sql>
+        <rollback>DROP TABLE mdm_files;</rollback>
+    </changeSet>
+
 
 </databaseChangeLog>
