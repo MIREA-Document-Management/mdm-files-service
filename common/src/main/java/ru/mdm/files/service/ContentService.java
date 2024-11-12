@@ -21,4 +21,13 @@ public interface ContentService {
      * @return информация о сохраненном контенте
      */
     Mono<ContentDto> createContent(@NotBlank String fileName, @NotNull Flux<DataBuffer> data, boolean compress);
+
+    /**
+     * Получить контент файла.
+     *
+     * @param contentRef ссылка на контент в хранилище
+     * @param decompress нужно ли разжать контент
+     * @return контент
+     */
+    Flux<DataBuffer> getContent(@NotNull String contentRef, boolean decompress);
 }

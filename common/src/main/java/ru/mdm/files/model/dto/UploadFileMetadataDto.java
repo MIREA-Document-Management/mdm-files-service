@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.Map;
 
 @Data
-@Schema(description = "Модель метаданных для создания файла")
+@Schema(description = "Модель метаданных для создания/обновления файла")
 public class UploadFileMetadataDto {
 
     @Schema(description = "Имя файла", requiredMode = Schema.RequiredMode.REQUIRED)

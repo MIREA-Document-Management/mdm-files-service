@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 public enum ErrorCode {
 
     CANNOT_WRITE_FILE_TO_STORAGE("Cannot write file to storage"),
-    CANNOT_CREATE_FILE("Не удалось создать файл")
+    CANNOT_CREATE_FILE("Не удалось создать файл"),
+    FILE_NOT_FOUND("Не найден файл с id = %s"),
+    UNZIP_ERROR("Ошибка при распаковке данных")
     ;
 
     private final String text;

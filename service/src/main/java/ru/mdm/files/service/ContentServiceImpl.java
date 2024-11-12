@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 import ru.mdm.files.model.dto.ContentDto;
 import ru.mdm.files.repository.ContentRepository;
 import ru.mdm.files.service.zip.Compressor;
+import ru.mdm.files.service.zip.Decompressor;
 
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -42,6 +43,15 @@ public class ContentServiceImpl implements ContentService {
                 .transform(dataBufferFlux -> contentRepository.createContent(fileName, dataBufferFlux))
                 .last()
                 .map(contentRef -> new ContentDto(fileName, contentRef, mimeType.get(), length.get(), actualLength.get(), compress));
+    }
+
+    @Override
+    public Flux<DataBuffer> getContent(String contentRef, boolean decompress) {
+        var content =  contentRepository.getContent(contentRef);
+        if (decompress) {
+            content = inflate(content);
+        }
+        return content;
     }
 
     /**
@@ -77,5 +87,18 @@ public class ContentServiceImpl implements ContentService {
                 })
                 .doOnNext(dataBuffer -> actualLength.addAndGet(dataBuffer.readableByteCount()))
                 .doFinally(signalType -> compressor.close());
+    }
+
+    /**
+     * Разжать контент файла.
+     *
+     * @param data контент файла
+     * @return разжатый контент
+     */
+    private Flux<DataBuffer> inflate(Flux<DataBuffer> data) {
+        var decompressor = new Decompressor();
+        return data
+                .map(decompressor::inflate)
+                .doFinally(signalType -> decompressor.close());
     }
 }

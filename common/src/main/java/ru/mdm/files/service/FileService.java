@@ -5,8 +5,11 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.core.io.buffer.DataBuffer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.mdm.files.model.dto.ContentWithMetadataDto;
 import ru.mdm.files.model.dto.FileMetadataDto;
 import ru.mdm.files.model.dto.UploadFileMetadataDto;
+
+import java.util.UUID;
 
 /**
  * Сервис для работы с файлами.
@@ -22,4 +25,12 @@ public interface FileService {
      * @return метаданные созданного файла
      */
     Mono<FileMetadataDto> createFile(@Valid UploadFileMetadataDto metadataDto, @NotNull Flux<DataBuffer> data, boolean compress);
+
+    /**
+     * Получить контент и метаданные файла.
+     *
+     * @param fileId идентификатор файла
+     * @return модель с контентом и метаданными файла
+     */
+    Mono<ContentWithMetadataDto> getFileContent(@NotNull UUID fileId);
 }
