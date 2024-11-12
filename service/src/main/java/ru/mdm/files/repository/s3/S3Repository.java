@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -17,6 +18,7 @@ import ru.mdm.files.exception.ServerException;
 import ru.mdm.files.repository.ContentRepository;
 import software.amazon.awssdk.core.SdkResponse;
 import software.amazon.awssdk.core.async.AsyncRequestBody;
+import software.amazon.awssdk.core.async.AsyncResponseTransformer;
 import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.model.*;
@@ -90,6 +92,19 @@ public class S3Repository implements ContentRepository {
                     checkResponse(response, ErrorCode.CANNOT_WRITE_FILE_TO_STORAGE);
                     return key;
                 });
+    }
+
+    @Override
+    public Flux<DataBuffer> getContent(String contentRef) {
+        return Mono.fromFuture(
+                        s3Client.getObject(GetObjectRequest.builder()
+                                        .bucket(s3Properties.getBucketName())
+                                        .key(contentRef)
+                                        .build(),
+                                AsyncResponseTransformer.toPublisher())
+                )
+                .flatMapMany(responsePublisher ->
+                        Flux.from(responsePublisher.map(DefaultDataBufferFactory.sharedInstance::wrap)));
     }
 
     private static String absolutify(String prefix, String fileName) {

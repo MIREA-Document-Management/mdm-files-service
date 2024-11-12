@@ -8,11 +8,15 @@ import org.springframework.validation.annotation.Validated;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.mdm.files.exception.ErrorCode;
+import ru.mdm.files.exception.ResourceNotFoundException;
+import ru.mdm.files.model.dto.ContentWithMetadataDto;
 import ru.mdm.files.model.dto.FileMetadataDto;
 import ru.mdm.files.model.dto.UploadFileMetadataDto;
 import ru.mdm.files.model.mapper.FileMapper;
 import ru.mdm.files.repository.FileRepository;
 import ru.mdm.files.util.ExceptionUtils;
+
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -31,6 +35,18 @@ public class FileServiceImpl implements FileService {
                         .map(content -> mapper.fillEntity(file, content)))
                 .flatMap(fileRepository::save)
                 .map(mapper::toDto)
+                .onErrorMap(ExceptionUtils.extExceptionMapper(ErrorCode.CANNOT_CREATE_FILE.getText()));
+    }
+
+    @Override
+    public Mono<ContentWithMetadataDto> getFileContent(UUID fileId) {
+        return fileRepository.findById(fileId)
+                .switchIfEmpty(Mono.defer(() ->
+                        Mono.error(new ResourceNotFoundException(ErrorCode.FILE_NOT_FOUND.buildErrorText(fileId)))))
+                .map(mapper::toContentWithMetadataDto)
+                .flatMap(dto -> Mono.fromSupplier(() -> contentService.getContent(dto.getContentRef(), dto.isCompressed()))
+                        .doOnNext(dto::setContent)
+                        .thenReturn(dto))
                 .onErrorMap(ExceptionUtils.extExceptionMapper(ErrorCode.CANNOT_CREATE_FILE.getText()));
     }
 }

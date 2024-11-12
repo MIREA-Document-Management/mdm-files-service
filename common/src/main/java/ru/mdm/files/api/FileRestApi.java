@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -59,9 +60,81 @@ public interface FileRestApi {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера",
                             content = @Content(schema = @Schema(hidden = true))),
             })
-    @GetMapping("/{fileId}")
+    @GetMapping("/{fileId}/content")
     Mono<ResponseEntity<Flux<DataBuffer>>> getFileContent(
             @Parameter(description = "Идентификатор файла", required = true)
             @PathVariable UUID fileId
     );
+
+    @Operation(summary = "Получить метаданные файла",
+            description = "Получить метаданные файла",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешный запрос",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = FileMetadataDto.class))),
+                    @ApiResponse(responseCode = "400", description = "Неверный формат переданных значений",
+                            content = @Content(schema = @Schema(hidden = true))),
+                    @ApiResponse(responseCode = "404", description = "Файл не найден",
+                            content = @Content(schema = @Schema(hidden = true))),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера",
+                            content = @Content(schema = @Schema(hidden = true))),
+            })
+    @GetMapping("/{fileId}/metadata")
+    Mono<FileMetadataDto> getFileMetadata(
+            @Parameter(description = "Идентификатор файла", required = true)
+            @PathVariable UUID fileId
+    );
+
+    @Operation(summary = "Обновить метаданные файла",
+            description = "Обновить метаданные файла",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Файл успешно обновлен",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = FileMetadataDto.class))),
+                    @ApiResponse(responseCode = "400", description = "Неверный формат переданных значений",
+                            content = @Content(schema = @Schema(hidden = true))),
+                    @ApiResponse(responseCode = "404", description = "Файл не найден",
+                            content = @Content(schema = @Schema(hidden = true))),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера",
+                            content = @Content(schema = @Schema(hidden = true))),
+            })
+    @PutMapping("/{fileId}/metadata")
+    Mono<FileMetadataDto> updateFileMetadata(
+            @Parameter(description = "Идентификатор файла", required = true)
+            @PathVariable UUID fileId,
+            @RequestBody UploadFileMetadataDto dto
+    );
+
+    @Operation(summary = "Удалить файл",
+            description = "Удалить файл из хранилища",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Файл успешно удален",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = FileMetadataDto.class))),
+                    @ApiResponse(responseCode = "400", description = "Неверный формат переданных значений",
+                            content = @Content(schema = @Schema(hidden = true))),
+                    @ApiResponse(responseCode = "404", description = "Файл не найден",
+                            content = @Content(schema = @Schema(hidden = true))),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера",
+                            content = @Content(schema = @Schema(hidden = true))),
+            })
+    @DeleteMapping("/{fileId}")
+    Mono<FileMetadataDto> deleteFile(
+            @Parameter(description = "Идентификатор файла", required = true)
+            @PathVariable UUID fileId
+    );
+
+    @Operation(summary = "Получить список файлов",
+            description = "Получить список файлов",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешный запрос",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = FileMetadataDto.class))),
+                    @ApiResponse(responseCode = "400", description = "Неверный формат переданных значений",
+                            content = @Content(schema = @Schema(hidden = true))),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера",
+                            content = @Content(schema = @Schema(hidden = true))),
+            })
+    @GetMapping
+    Flux<FileMetadataDto> getFiles(Pageable pageable);
 }

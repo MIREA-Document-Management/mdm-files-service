@@ -18,4 +18,12 @@ public interface ContentRepository {
      * @return путь к сохраненному контенту
      */
     Mono<String> createContent(@NotNull String fileName, @NotNull Flux<DataBuffer> data);
+
+    /**
+     * Получить контент файла.
+     *
+     * @param contentRef ссылка на контент в хранилище
+     * @return контент
+     */
+    Flux<DataBuffer> getContent(@NotNull String contentRef);
 }
