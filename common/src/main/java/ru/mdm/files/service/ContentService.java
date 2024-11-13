@@ -30,4 +30,11 @@ public interface ContentService {
      * @return контент
      */
     Flux<DataBuffer> getContent(@NotNull String contentRef, boolean decompress);
+
+    /**
+     * Удалить контент файла из хранилища.
+     *
+     * @param contentRef ссылка на контент в хранилище
+     */
+    Mono<Void> deleteContent(@NotNull String contentRef);
 }

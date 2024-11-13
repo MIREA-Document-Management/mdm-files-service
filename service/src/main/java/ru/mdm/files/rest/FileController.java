@@ -50,22 +50,22 @@ public class FileController implements FileRestApi {
 
     @Override
     public Mono<FileMetadataDto> getFileMetadata(UUID fileId) {
-        return null;
+        return fileServiceImpl.getFileMetadata(fileId);
     }
 
     @Override
     public Mono<FileMetadataDto> updateFileMetadata(UUID fileId, UploadFileMetadataDto dto) {
-        return null;
+        return fileServiceImpl.updateFileMetadata(fileId, dto);
     }
 
     @Override
     public Mono<FileMetadataDto> deleteFile(UUID fileId) {
-        return null;
+        return fileServiceImpl.deleteFile(fileId);
     }
 
     @Override
     public Flux<FileMetadataDto> getFiles(Pageable pageable) {
-        return null;
+        return fileServiceImpl.getFiles(pageable);
     }
 
     private ResponseEntity<Flux<DataBuffer>> mapToContentResponseEntity(ContentWithMetadataDto dto) {

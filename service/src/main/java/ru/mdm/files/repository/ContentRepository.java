@@ -26,4 +26,11 @@ public interface ContentRepository {
      * @return контент
      */
     Flux<DataBuffer> getContent(@NotNull String contentRef);
+
+    /**
+     * Удалить контент файла.
+     *
+     * @param contentRef ссылка на контент в хранилище
+     */
+    Mono<Void> deleteContent(@NotNull String contentRef);
 }
