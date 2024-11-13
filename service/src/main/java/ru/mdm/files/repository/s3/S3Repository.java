@@ -107,6 +107,19 @@ public class S3Repository implements ContentRepository {
                         Flux.from(responsePublisher.map(DefaultDataBufferFactory.sharedInstance::wrap)));
     }
 
+    @Override
+    public Mono<Void> deleteContent(String contentRef) {
+        return Mono.fromFuture(
+                        s3Client.deleteObject(
+                                DeleteObjectRequest.builder()
+                                        .bucket(s3Properties.getBucketName())
+                                        .key(contentRef)
+                                        .build())
+                )
+                .doOnNext(response -> checkResponse(response, ErrorCode.CANNOT_DELETE_FILE_FROM_STORAGE))
+                .then();
+    }
+
     private static String absolutify(String prefix, String fileName) {
         if (StringUtils.hasLength(prefix)) {
             var location = prefix;

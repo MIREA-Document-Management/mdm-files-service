@@ -18,4 +18,6 @@ public interface FileMapper {
     FileMetadataDto toDto(File entity);
 
     ContentWithMetadataDto toContentWithMetadataDto(File entity);
+
+    File update(@MappingTarget File file, UploadFileMetadataDto dto);
 }

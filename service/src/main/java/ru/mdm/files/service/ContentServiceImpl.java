@@ -54,6 +54,11 @@ public class ContentServiceImpl implements ContentService {
         return content;
     }
 
+    @Override
+    public Mono<Void> deleteContent(String contentRef) {
+        return contentRepository.deleteContent(contentRef);
+    }
+
     /**
      * Сжать контент при необходимости и заполнить необходимые параметры.
      *
