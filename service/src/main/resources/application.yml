@@ -1,7 +1,10 @@
 yml-vars:
   database:
+    # URL для подключения к базе данных PostgreSQL.
     url: ${DATASOURCE_URL:postgresql://127.0.0.1:5432/mdm_files_db}
+    # Имя пользователя для подключения к базе данных.
     username: postgres
+    # Пароль пользователя базы данных.
     password: 123456
 
 server:
@@ -15,6 +18,10 @@ server:
 #    root: DEBUG
 
 spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: mdm-files-service
   liquibase:
     enabled: true
     change-log: classpath:db/db.changelog-master.xml
@@ -30,12 +37,79 @@ spring:
     r2dbc:
       repositories:
         enabled: true
+  kafka:
+    # Список брокеров Kafka.
+    bootstrap-servers: ${KAFKA_URL_LIST:localhost:9092}
+    producer:
+      # Требование подтверждения доставки сообщений.
+      acks: ${KAFKA_PRODUCER_ACKS:1}
+      # Количество повторных попыток отправки.
+      retries: ${KAFKA_PRODUCER_RETRIES:2}
+    consumer:
+      # Стратегия начала чтения сообщений.
+      auto-offset-reset: ${KAFKA_CONSUMER_AUTO_OFFSET_RESET:earliest}
+      # Идентификатор группы потребителей.
+      group-id: ${ENVIRONMENT_PREFIX:local}-${spring.application.name}
+      properties:
+        spring:
+          json:
+            trusted: # Данное свойство разрешает десереализацию всех классов.
+              packages: '*'
+  security:
+    oauth2:
+      client:
+        registration:
+          backend:
+            authorizationGrantType: client_credentials
+            clientId: mdm_client
+            clientSecret: oETh9BqhjoJAfld2jFGk2acsjtTcve4E
+        provider:
+          backend:
+            tokenUri: http://localhost:8080/realms/MDM/protocol/openid-connect/token
 
 mdm:
+  application:
+    # Имя сервиса, под которым он будет зарегистрирован в реестре.
+    name: ${spring.application.name}
+    # Описание сервиса для отображения в реестре сервисов.
+    description: Сервис для управления файлами
+    # Версия сервиса, может использоваться для управления совместимостью.
+    version: ${APPLICATION_VERSION:local}
+    route:
+      # URI, по которому доступен сервис. Обычно содержит host и порт.
+      uri: ${APPLICATION_ROUTE_URI:http://localhost:${server.port}}
+      predicates:
+        # Условие маршрутизации: по какому пути API-шлюз будет направлять запросы на этот сервис.
+        - Path=${APPLICATION_ROUTE_PATH:/mdm-files-service/**}
+      filters:
+        # Фильтр для удаления первого сегмента пути перед передачей запроса в сервис.
+        # Например, "/mdm-files-service/api" превратится в "/api".
+        - StripPrefix=1
+    controllers:
+      # Пакет, в котором осуществляется сканирование контроллеров для извлечения эндпоинтов.
+      - ru.mdm.files.rest
+  registry:
+    service:
+      url: http://localhost:8888
   s3:
+    # Ключ доступа для подключения к MinIO.
     access-key: minioadmin
+    # Секретный ключ для подключения к MinIO.
     secret-key: minioadmin
+    # Регион MinIO.
     region: us-east-1
+    # URL-эндпоинт для подключения к MinIO.
     endpoint: http://localhost:9000
+    # Название бакета для хранения файлов.
     bucket-name: first-bucket
+    # Префикс для размещения файлов в бакете.
     prefix: test-prefix
+  keycloak:
+    # Базовый URL сервера Keycloak.
+    url: http://localhost:8080
+    # Адрес получения токенов.
+    token-uri: ${mdm.keycloak.url}/realms/MDM/protocol/openid-connect/token
+    # Адрес получения публичных ключей для валидации токенов.
+    jwk-set-uri: ${mdm.keycloak.url}/realms/MDM/protocol/openid-connect/certs
+    # Секрет клиента для аутентификации.
+    client-secret: OyIAASoDGnbuDrwzVGdyhqsFiq0VLPBY

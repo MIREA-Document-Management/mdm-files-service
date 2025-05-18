@@ -59,33 +59,33 @@ public class File {
     @Column("compressed")
     private boolean compressed;
 
-    /**  //TODO раскоментить после подключения аутентификации
+    /**
      * Кто создал файл.
      */
-//    @CreatedBy
+    @CreatedBy
     @Column("created_by")
-    private String createdBy = "admin";
+    private String createdBy;
 
     /**
      * Дата и время создания.
      */
-//    @CreatedDate
+    @CreatedDate
     @Column("creation_date")
-    private LocalDateTime creationDate = LocalDateTime.now();
+    private LocalDateTime creationDate;
 
     /**
      * Кто последний изменил файл.
      */
-//    @LastModifiedBy
+    @LastModifiedBy
     @Column("modified_by")
-    private String modifiedBy = "admin";
+    private String modifiedBy;
 
     /**
      * Дата и время последнего изменения.
      */
-//    @LastModifiedDate
+    @LastModifiedDate
     @Column("modification_date")
-    private LocalDateTime modificationDate = LocalDateTime.now();
+    private LocalDateTime modificationDate;
 
     /**
      * Дополнительная информация о файле.

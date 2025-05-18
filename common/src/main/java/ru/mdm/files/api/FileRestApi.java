@@ -16,12 +16,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.mdm.files.model.dto.FileMetadataDto;
 import ru.mdm.files.model.dto.UploadFileMetadataDto;
+import ru.mdm.registry.annotation.MdmEndpointController;
 
 import java.util.UUID;
 
 /**
  * REST-API для работы с файлами.
  */
+@MdmEndpointController
 public interface FileRestApi {
 
     String BASE_PATH = "/api/v1/files";
@@ -35,7 +37,7 @@ public interface FileRestApi {
                     @ApiResponse(responseCode = "400", description = "Неверный формат переданных значений",
                             content = @Content(schema = @Schema(hidden = true))),
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера",
-                            content = @Content(schema = @Schema(hidden = true))),
+                            content = @Content(schema = @Schema(hidden = true)))
             })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -44,6 +46,28 @@ public interface FileRestApi {
             @RequestPart(name = "metadata") UploadFileMetadataDto metadataDto,
             @Parameter(description = "Содержимое файла", required = true)
             @RequestPart(name = "file") Mono<FilePart> file,
+            @Parameter(description = "Сжать файл")
+            @RequestParam(required = false, defaultValue = "false") Boolean compress
+    );
+
+    @Operation(summary = "Создать файл",
+            description = "Создать новый файл и разместить его в хранилище (для формата base64)",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Файл успешно создан",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = FileMetadataDto.class))),
+                    @ApiResponse(responseCode = "400", description = "Неверный формат переданных значений",
+                            content = @Content(schema = @Schema(hidden = true))),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера",
+                            content = @Content(schema = @Schema(hidden = true)))
+            })
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, path = "/base64")
+    @ResponseStatus(HttpStatus.CREATED)
+    Mono<FileMetadataDto> createFileBase64(
+            @Parameter(description = "Имя файла", required = true)
+            @RequestPart(name = "fileName") String fileName,
+            @Parameter(description = "Содержимое файла", required = true)
+            @RequestPart(name = "file") String fileBase64,
             @Parameter(description = "Сжать файл")
             @RequestParam(required = false, defaultValue = "false") Boolean compress
     );
